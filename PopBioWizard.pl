@@ -538,17 +538,37 @@ sub print_table {
 
 =head2 ontology_triplet_lookup
 
+The third parameter, if it contains 'strict', will make sure that an
+error is thrown if the ontology term is not defined in the config
+file.
+
+If the value to be looked up is semicolon delimited, the lookup of the
+sub-parts is always in 'strict' mode to make sure that the resulting
+semi-colon delimted ISA-Tab is valid.
 
 =cut
 
 
 sub ontology_triplet_lookup {
     my ($value, $lookup, $mode) = @_;
+
     my $strict = $mode =~ /strict/i;
 
     my ($onto, $acc) = ('', '');
 
     if (defined $value && length($value)) {
+        # handle semicolon delimited values
+        my @parts = split /;/, $value;
+        if (@parts > 1) {
+            my (@ontos, @accs);
+            foreach my $part (@parts) {
+                my ($p_value, $p_onto, $p_acc) = ontology_triplet_lookup($part, $lookup, 'strict');
+                push @ontos, $p_onto;
+                push @accs, $p_acc;
+            }
+            return ($value, join(';', @ontos), join(';', @accs));
+        }
+
         my $term_acc = $lookup->{$value};
 
         if ($term_acc) {

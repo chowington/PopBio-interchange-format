@@ -1,0 +1,3 @@
+collection_ID	sample_ID	collection_start_date	collection_end_date	GPS_latitude	GPS_longitude	location_ADM2	location_ADM1	location_country	trap_type	attractant	trap_number	trap_duration	species	species_identification_method	developmental_stage	sex	sample_count
+collect1	sample1	2016-06-09	2016-06-16	35.584236	-82.617805	Buncombe	North Carolina	United States of America	LIGHT_TRAP	light;CO2	1	7	Aedes albopictus	MORPHO	adult	female	0
+collect1	sample2	2016-06-09	2016-06-16	35.584236	-82.617805	Buncombe	North Carolina	United States of America	LIGHT_TRAP	CO2	1	7	Aedes albopictus	MORPHO	adult	female;male	0
