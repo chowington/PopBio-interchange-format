@@ -15,6 +15,8 @@ use Data::Dumper;
 use Tie::Hash::Indexed;
 use YAML::XS qw/LoadFile/;
 use Bio::Parser::ISATab;
+use DateTime::Format::ISO8601;
+use Try::Tiny;
 
 my %ISA;  # main hash to store data read in from $file - main key is sample ID
 tie %ISA, 'Tie::Hash::Indexed'; # ordered hash - will return samples in order
@@ -483,12 +485,33 @@ sub get_data_from_file {
     }
 
     # VALIDATION
+    my $iso8601 = DateTime::Format::ISO8601->new;
+    my @validation_errors;
+
     foreach my $sample_ID (keys %ISA) {
         my $row = $ISA{$sample_ID};
 
-        unless ($row->{collection_start_date} && $row->{collection_end_date} && $row->{trap_duration}) {
-            # should add date format checks too
-            die "collection_start_date, collection_end_date must both be defined and trap_duration must be non-zero for sample '$sample_ID'\n";
+        unless ($row->{collection_ID}) {
+            push @validation_errors, "missing collection_ID (sample: $sample_ID)";
+            next; # skipping further checks because they need collection_ID for reporting
+        }
+
+        unless ($row->{collection_start_date} && $row->{collection_end_date}) {
+            push @validation_errors, "missing collection_start_date or collection_end_date (collection: $row->{collection_ID})";
+        } else {
+            # check the date format
+            try {
+                foreach my $date ($row->{collection_start_date}, $row->{collection_end_date}) {
+                    my $dt = $iso8601->parse_datetime($date);
+                    # the parsing succeeded
+                }
+            } catch {
+                push @validation_errors, "Bad date format: $row->{collection_start_date} and/or $row->{collection_end_date} (collection: $row->{collection_ID})";
+            }
+        }
+
+        unless ($row->{trap_duration}) {
+            push @validation_errors, "missing or zero trap_duration (collection: $row->{collection_ID})";
         }
 
         # TO DO: validate trap_type is in $config hash
@@ -499,6 +522,10 @@ sub get_data_from_file {
         #        ...?
     }
 
+
+    if (@validation_errors) {
+        die "\n\nVALIDATION ERRORS:\n".join("\n", map "  $_", @validation_errors)."\n";
+    }
 
     # Report number of rows parsed from the input file
     if ( $verbose ) {
