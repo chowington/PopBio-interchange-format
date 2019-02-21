@@ -510,6 +510,14 @@ sub get_data_from_file {
             }
         }
 
+        unless ($row->{GPS_latitude} && $row->{GPS_longitude}) {
+            push @validation_errors, "missing GPS_latitude or GPS_longitude (collection: $row->{collection_ID})";
+        } else {
+            if (abs($row->{GPS_latitude}) > 90 || abs($row->{GPS_longitude}) > 180) {
+                push @validation_errors, "Invalid GPS value(s) - out of valid range: ($row->{GPS_latitude}, $row->{GPS_longitude}) (collection: $row->{collection_ID})";
+            }
+        }
+
         unless ($row->{trap_duration}) {
             push @validation_errors, "missing or zero trap_duration (collection: $row->{collection_ID})";
         }
