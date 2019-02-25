@@ -486,6 +486,7 @@ sub get_data_from_file {
 
     # VALIDATION
     my $iso8601 = DateTime::Format::ISO8601->new;
+    my $float_regex = qr/^-?[0-9]+(.[0-9]*)?$/;
     my @validation_errors;
 
     foreach my $sample_ID (keys %ISA) {
@@ -507,6 +508,17 @@ sub get_data_from_file {
                 }
             } catch {
                 push @validation_errors, "Bad date format: $row->{collection_start_date} and/or $row->{collection_end_date} (collection: $row->{collection_ID})";
+            }
+        }
+
+        unless ($row->{GPS_latitude} && $row->{GPS_longitude}) {
+            push @validation_errors, "Missing GPS_latitude or GPS_longitude (collection: $row->{collection_ID})";
+        } else {
+            if ($row->{GPS_latitude} !~ $float_regex || $row->{GPS_longitude} !~ $float_regex) {
+                push @validation_errors, "Nonnumeric GPS values(s): ($row->{GPS_latitude}, $row->{GPS_longitude}) (collection: $row->{collection_ID})";
+            }
+            if (abs($row->{GPS_latitude}) > 90 || abs($row->{GPS_longitude}) > 180) {
+                push @validation_errors, "Invalid GPS value(s) - out of valid range: ($row->{GPS_latitude}, $row->{GPS_longitude}) (collection: $row->{collection_ID})";
             }
         }
 
