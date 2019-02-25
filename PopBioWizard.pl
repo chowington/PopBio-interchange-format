@@ -38,6 +38,7 @@ my $a_collection;
 my $a_species;
 my $a_virus;
 my $all_regular_sheets;
+my $abundance = 1;              # --no-abundance means that the sample counts will not be put in the sample sheet (will go in pathogen assay sheet if appropriate)
 
 #---------------------------------------------------------#
 
@@ -57,8 +58,11 @@ GetOptions(
     "samples"        => \$s_sample,        # output the s_samples.txt sheet
     "collection"    => \$a_collection,     # and
     "species"       => \$a_species,        # so
-    "virus"	    => \$a_virus,          # on
-    "isatab"        => \$all_regular_sheets, # shortcut for -investigation -samples -collection --species --output_delimiter TAB
+    "pathogen|virus" => \$a_virus,         # on
+    "isatab"        => \$all_regular_sheets, # shortcut for --investigation --samples --collection --species --output_delimiter TAB
+                                             # it does not add --pathogen !!
+    "abundance!"    => \$abundance, 
+
     "output-delimiter|delimiter=s" => \$output_delimiter,
     "output-directory|directory=s" => \$output_directory,
 );
@@ -281,7 +285,7 @@ if ( $s_sample ) {
             ontology_triplet_lookup("pool", $config->{study_terms}, "strict"),
             ontology_triplet_lookup($row->{sex}, $config->{study_sexes}, "strict"),
             ontology_triplet_lookup($row->{developmental_stage}, $config->{study_developmental_stages}, "strict"),
-            $row->{sample_count},
+            $abundance ? $row->{sample_count} : '',
             $row->{sample_comment} // '',
         ];
     }
@@ -420,36 +424,60 @@ if ( $a_species ) {
 ##
 
 if ( $a_virus ) {
-    print "// Writing $output_directory/a_virus.$output_suffix sheet\n" if ($verbose);
+    print "// Writing $output_directory/a_pathogen.$output_suffix and $output_directory/p_pathogen.$output_suffix sheets\n" if ($verbose);
 
-    die "virus sheets handling TO BE REIMPLIMENTED...";
-    # TO DO:
-    # put data for multiple assays (e.g. tests for different viruses) in one row of SAF
-    # possibly using vertical bar as the separator
+    my $a_tab = []; # output data structure reference to array of arrays
+    open(my $a_fh, ">$output_directory/a_pathogen.$output_suffix") || die;
 
-    open (OUTPUT_A, "> ./a_virus.csv");
-    open (OUTPUT_P, "> ./p_virus.csv");
+    push @{$a_tab}, [
+        'Sample Name', 'Assay Name', 'Description', 'Protocol REF', 'Characteristics [sample size (VBcv:0000983)]', 'Raw Data File'
+    ];
 
-    # Header
-    print OUTPUT_A "Sample Name,Assay Name,Description,Protocol REF,Raw Data File\n";
-    print OUTPUT_P "Assay Name,Phenotype Name,Observable,Term Source Ref,Term Accession Number,Attribute,Term Source Ref,Term Accession Number,Value,Term Source Ref,Term Accession Number\n";
+    my $p_tab = [];
+    open(my $p_fh, ">$output_directory/p_pathogen.$output_suffix") || die;
 
-    foreach my $i (keys %ISA) {
-        foreach my $j (@{ $ISA{$i}{Assay} }) {
-            my ($assay_type,$assay_proc,$assay_result,$assay_units) = split /;/, $j;
-            print "// $ISA{$i}{sample_ID} [$assay_type,$assay_proc,$assay_result,$assay_units] $j\n" if ( $moreverbose );
+    push @{$p_tab}, [
+        'Assay Name', 'Phenotype Name',
+        'Observable', 'Term Source Ref', 'Term Accession Number',
+        'Attribute', 'Term Source Ref', 'Term Accession Number',
+        'Value', 'Term Source Ref', 'Term Accession Number'
+    ];
 
-            printf OUTPUT_A ("$ISA{$i}{sample_ID},$ISA{$i}{sample_ID}.${assay_type},,${assay_type},p_virus.txt\n", $i );
+    foreach my $row (values %ISA) {
+        # presumably we should skip these rows
+        next if ($row->{species} eq 'BLANK');
+        
+        my $phenotypes = $row->{phenotypes};
+        if ($phenotypes) {
+            warn "processing phenotypes >$phenotypes<\n" if ($moreverbose);
+            foreach my $phenotype (split /\s*\|\s*/, $phenotypes) {
+                warn "\tphenotype >$phenotype<\n" if ($moreverbose);
+                my ($protocol, $obs, $attr, $val) = split /\s*;\s*/, $phenotype;
+                my $assay_name = $row->{sample_ID}.'.'.$protocol;
+                my $phenotype_name = sprintf("$attr %s", $val =~ /^(?:present|positive|confirmed|detected)$/i ? 'infected' : 'not detected');
 
-            if ( $assay_result eq "Positive") {
-                printf OUTPUT_P ("$ISA{$i}{sample_ID}.${assay_type},\"${assay_type} infected\",\"arthropod infection status\",VSMO,0000009,${assay_type},VSMO,0000535,present,PATO,0000467\n");
-            } elsif ( $assay_result eq "Negative") {
-                printf OUTPUT_P ("$ISA{$i}{sample_ID}.${assay_type},\"${assay_type} infection not detected\",\"arthropod infection status\",VSMO,0000009,${assay_type},VSMO,0000882,absent,PATO,0000462\n");
+                push @{$a_tab}, [
+                    $row->{sample_ID}, $assay_name, '',
+                    $protocol, 
+                    $abundance ? '' : $row->{sample_count},
+                    "p_pathogen.$output_suffix"
+                ];
+
+                push @{$p_tab}, [
+                    $assay_name, $phenotype_name,
+                    ontology_triplet_lookup($obs, $config->{study_terms}, 'strict'),
+                    ontology_triplet_lookup($attr, $config->{study_terms}, 'strict'),
+                    ontology_triplet_lookup($val, $config->{study_terms}, 'strict')
+                ];
+                
             }
         }
     }
-    close OUTPUT_A;
-    close OUTPUT_P;
+    print_table($a_fh, $a_tab);
+    print_table($p_fh, $p_tab);
+
+    close $a_fh;
+    close $p_fh;
 }
 
 

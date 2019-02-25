@@ -1,0 +1,4 @@
+collection_ID	sample_ID	collection_start_date	collection_end_date	GPS_latitude	GPS_longitude	location_ADM2	location_ADM1	location_country	trap_type	attractant	trap_number	trap_duration	species	species_identification_method	developmental_stage	sex	sample_count	phenotypes
+collect1	sample1	2016-06-09	2016-06-16	42.300183	-93.641589		Iowa	USA	CDC	light	1	7	Aedes albopictus	MORPHO	adult	female	34	PCR_WNV;arthropod infection status;WNV;absent | PCR_WEE;arthropod infection status;WEE;present
+collect1	sample2	2016-06-09	2016-06-16	42.300183	-93.641589		Iowa	USA	CDC	light	1	7	Aedes albopictus	MORPHO	adult	female	27	
+collect1	sample3	2016-06-09	2016-06-16	42.300183	-93.641589		Iowa	USA	CDC	light	1	7	Aedes albopictus	MORPHO	adult	female	50	PCR_WNV;arthropod infection status;WNV;present
