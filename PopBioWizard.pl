@@ -190,6 +190,9 @@ if ( $add_zeros ) {
     # counter for the ordinal added to zero sample IDs: <collection_ID>_zero_sample_NNN
     my %zero_sample_count;
 
+    # see which combined_feeding_and_gonotrophic_status values we get and warn later if we see some
+    my %gonotrophic_status;
+
     # Loop through hash to collate seen species-sex-stage combos
     # also look out for species eq 'BLANK' rows
     foreach my $sample_ID ( keys %ISA ) {
@@ -206,6 +209,13 @@ if ( $add_zeros ) {
         }
 
         $collection_row{$collection_ID} //= $row;
+
+        $gonotrophic_status{$row->{combined_feeding_and_gonotrophic_status}}++ if ($row->{combined_feeding_and_gonotrophic_status});
+    }
+
+    my $n = keys %gonotrophic_status;
+    if ($n > 0) {
+        warn sprintf "WARNING: %s different combined_feeding_and_gonotrophic_status value(s) are present in the data - zero handling may produce unexpected results...\n", $n;
     }
 
     # Loop through collections that may need augmenting
@@ -272,6 +282,7 @@ if ( $s_sample ) {
         'Material Type', 'Term Source Ref', 'Term Accession Number',
         'Characteristics [sex (EFO:0000695)]', 'Term Source Ref', 'Term Accession Number',
         'Characteristics [developmental stage (EFO:0000399)]', 'Term Source Ref', 'Term Accession Number',
+        'Characteristics [combined feeding and gonotrophic status of insect (VSMO:0002038)]', 'Term Source Ref', 'Term Accession Number',
         'Characteristics [sample size (VBcv:0000983)]',
         'Comment [sample_comment]'
     ];
@@ -285,6 +296,7 @@ if ( $s_sample ) {
             ontology_triplet_lookup("pool", $config->{study_terms}, "strict"),
             ontology_triplet_lookup($row->{sex}, $config->{study_sexes}, "strict"),
             ontology_triplet_lookup($row->{developmental_stage}, $config->{study_developmental_stages}, "strict"),
+            ontology_triplet_lookup($row->{combined_feeding_and_gonotrophic_status}, $config->{study_terms}, "relaxed"),
             $abundance ? $row->{sample_count} : '',
             $row->{sample_comment} // '',
         ];
