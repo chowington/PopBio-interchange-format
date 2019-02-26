@@ -26,6 +26,7 @@ trap_duration|integer|Mandatory|Number of nights/days trap was deployed (Default
 species|string|Species|binomial species name for collected specimens
 species_identification_method|string|Mandatory|Protocol for asserting species identification
 developmental_stage|string|Mandatory|developmental stage e.g. adult
+combined_feeding_and_gonotrophic_status|string|Optional|e.g. fed, unfed, semi-gravid, gravid
 sex|string|Mandatory|sex of specimens e.g. female/male/mixed
 sample_count|integer|Mandatory|count of specimens from collection
 collection_comment|string|Optional|free text comment about the collection site or event
