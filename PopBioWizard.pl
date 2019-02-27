@@ -213,11 +213,6 @@ if ( $add_zeros ) {
         $gonotrophic_status{$row->{combined_feeding_and_gonotrophic_status}}++ if ($row->{combined_feeding_and_gonotrophic_status});
     }
 
-    my $n = keys %gonotrophic_status;
-    if ($n > 0) {
-        warn sprintf "WARNING: %s different combined_feeding_and_gonotrophic_status value(s) are present in the data - zero handling may produce unexpected results...\n", $n;
-    }
-
     # Loop through collections that may need augmenting
     foreach my $collection_ID ( keys %collection_species_sex_stage ) {
         # loop through all species-sex-stage combinations and figure out which species are missing for each sex-stage combo
