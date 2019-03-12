@@ -148,7 +148,7 @@ if ($i_investigation) {
         push @{$config->{study_assays}}, { study_assay_measurement_type => 'species identification assay',
             study_assay_file_name => "a_species.$output_suffix" } if ($a_species);
         push @{$config->{study_assays}}, { study_assay_measurement_type => 'phenotype assay',
-            study_assay_file_name => "a_virus.$output_suffix" } if ($a_virus);
+            study_assay_file_name => "a_pathogen.$output_suffix" } if ($a_virus);
     }
 
     # now write the i_investigation sheet using data in $config (any additional non-ISA-Tab data will be ignored)
