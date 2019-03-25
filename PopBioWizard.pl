@@ -461,7 +461,8 @@ if ( $a_virus ) {
                 warn "\tphenotype >$phenotype<\n" if ($moreverbose);
                 my ($protocol, $obs, $attr, $val) = split /\s*;\s*/, $phenotype;
                 my $assay_name = $row->{sample_ID}.'.'.$protocol;
-                my $phenotype_name = sprintf("$attr %s", $val =~ /^(?:present|positive|confirmed|detected)$/i ? 'infected' : 'not detected');
+                my $phenotype_name = sprintf("$attr %s", $val =~ /^(?:present|positive|confirmed|detected)$/i ? 'infected' :
+                                             $val =~ /^(?:eq.*v|possibl|putativ)/i ? 'possibly detected' : 'not detected');
 
                 push @{$a_tab}, [
                     $row->{sample_ID}, $assay_name, '',
