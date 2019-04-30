@@ -5,8 +5,8 @@ Simple Abundance Format (SAF) for VectorBase PopBio incidence/abundance datasets
 
 Description of Simple Abundance Format (SAF)
 --------------------------------------------
-Field Name |Format|Requirement|Details
------------|------|-------|-----------
+Field Name |Format|Requirement|Details|Multi-valued?
+-----------|------|-------|-----------|-------
 collection_ID|string|Mandatory|Identifier for collection event e.g. ABC_2018_collection_00001
 sample_ID|string|Mandatory|Identifier for sample event e.g. ABC_2018_sample_00001
 collection_start_date|ISO 8601 date format (YYYY-MM-DD)|Mandatory|Date at which traps deployed
@@ -20,7 +20,7 @@ location_ADM2|string|Optional|Administrative level 2 for collection e.g. Orange 
 location_ADM1|string|Optional|Administrative level 1 for collection e.g. Florida
 location_country|string|Optional|Country in which collection occurred e.g. United States of America
 trap_type|string|Mandatory|Trap type e.g. CDC light trap, New Jersey Trap
-attractant|string|Advisory|List of attractants used in the trap e.g. CO2, light
+attractant|string|Advisory|List of attractants used in the trap e.g. CO2, light|yes, semicolon delimited
 trap_number|integer|Mandatory|Number of traps deployed (Default is 1)
 trap_duration|integer|Mandatory|Number of nights/days trap was deployed (Default is 1)
 species|string|Species|binomial species name for collected specimens
@@ -32,4 +32,4 @@ sample_count|integer|Mandatory|count of specimens from collection
 collection_comment|string|Optional|free text comment about the collection site or event
 sample_comment|string|Optional|free text comment about the sample material
 species_comment|string|Optional|free text comments about the species identification process
-phenotypes|string|Optional| phenotype should be formatted as follows and separated by vertical bars '\|' <br/><br/>**PCR_VIVAX;arthropod infection status;Plasmodium vivax;present**<br/><br/>Spaces before/after the semicolon and vertical bar delimiters are allowed.<br/><br/>PCR_VIVAX is the protocol type (defined in study_protocols in config file). The next three values are the Observable, Attribute and Value that describe the phenotype (GMOD Chado style) and each value must be a term described in the study_terms section of the config file. Currently only pathogen infection status phenotypes are supported. The value for positive assays must match /^(?:present|positive|confirmed|detected)/i
+phenotypes|string|Optional| phenotype should be formatted as follows and separated by vertical bars '\|' <br/><br/>**PCR_VIVAX;arthropod infection status;Plasmodium vivax;present**<br/><br/>Spaces before/after the semicolon and vertical bar delimiters are allowed.<br/><br/>PCR_VIVAX is the protocol type (defined in study_protocols in config file). The next three values are the Observable, Attribute and Value that describe the phenotype (GMOD Chado style) and each value must be a term described in the study_terms section of the config file. Currently only pathogen infection status phenotypes are supported. The value for positive assays must match /^(?:present\|positive\|confirmed\|detected)/i
