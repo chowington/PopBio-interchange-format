@@ -255,6 +255,10 @@ if ( $add_zeros ) {
                     $new_row->{sample_count} = 0;
                     # and a description
                     $new_row->{sample_description} = "Record of absence of some species ($sex, $stage)";
+                    # blank out anything inappropriately sample- or assay-related
+                    delete $new_row->{sample_comment};
+                    delete $new_row->{phenotypes};
+
                 }
             }
         }
