@@ -40,6 +40,8 @@ my $a_virus;
 my $all_regular_sheets;
 my $abundance = 1;              # --no-abundance means that the sample counts will not be put in the sample sheet (will go in pathogen assay sheet if appropriate)
 
+my $warn_geo_terms = 0;         # go back to old behaviour, and warn for missing geo (e.g. GAZ) terms from config file 
+
 #---------------------------------------------------------#
 
 #---------------------------------------------------------#
@@ -65,6 +67,8 @@ GetOptions(
 
     "output-delimiter|delimiter=s" => \$output_delimiter,
     "output-directory|directory=s" => \$output_directory,
+
+    "warn-geo-terms|warn_geo_terms" => \$warn_geo_terms,
 );
 #---------------------------------------------------------#
 
@@ -355,7 +359,7 @@ if ( $a_collection ) {
         }
         warn sprintf "WARNING: couldn't find placename ontology term for descrip: '%s' ADM2: '%s' ADM1: '%s' country: '%s'\n",
                      $row->{location_description} // '', $row->{location_ADM2} // '', $row->{location_ADM1} // '', $row->{location_ADM1} // ''
-              if ($tries && !length($location_acc)); 
+              if ($warn_geo_terms && $tries && !length($location_acc)); 
 
         push @{$c_tab}, [
             $row->{sample_ID}, $row->{collection_ID}, $row->{collection_description} // '',
