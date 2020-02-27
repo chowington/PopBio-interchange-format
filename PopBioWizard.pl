@@ -39,7 +39,7 @@ my $a_species;
 my $a_virus;
 my $all_regular_sheets;
 my $abundance = 1;              # --no-abundance means that the sample counts will not be put in the sample sheet (will go in pathogen assay sheet if appropriate)
-
+my $allow_empty_trap_duration;  # permit SAF with no trap_duration values
 my $warn_geo_terms = 0;         # go back to old behaviour, and warn for missing geo (e.g. GAZ) terms from config file 
 
 #---------------------------------------------------------#
@@ -69,6 +69,7 @@ GetOptions(
     "output-directory|directory=s" => \$output_directory,
 
     "warn-geo-terms|warn_geo_terms" => \$warn_geo_terms,
+    "allow_empty_trap_duration|allow-empty-trap-duration" => \$allow_empty_trap_duration,
 );
 #---------------------------------------------------------#
 
@@ -566,7 +567,7 @@ sub get_data_from_file {
             }
         }
 
-        unless ($row->{trap_duration}) {
+        unless ($allow_empty_trap_duration || $row->{trap_duration}) {
             push @validation_errors, "missing or zero trap_duration (collection: $row->{collection_ID})";
         }
 
