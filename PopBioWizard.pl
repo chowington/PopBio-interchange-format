@@ -546,7 +546,7 @@ sub get_data_from_file {
         } else {
             # check the date format
             try {
-                foreach my $date ($row->{collection_start_date}, $row->{collection_end_date}) {
+                foreach my $date (map { split /\s*;\s*/, $_ } ($row->{collection_start_date}, $row->{collection_end_date})) {
                     my $dt = $iso8601->parse_datetime($date);
                     # the parsing succeeded
                 }
